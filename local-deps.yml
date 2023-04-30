@@ -1,0 +1,11 @@
+- name: Ensure local dependencies are installed
+  become: false
+  hosts:
+    - localhost
+  tasks:
+    - name: Install Terraform (macOS)
+      community.general.homebrew:
+        name: terraform
+        state: present
+        update_homebrew: false
+      when: ansible_os_family == 'Darwin'

@@ -1,0 +1,9 @@
+- name: Configure unencrypted disks in fstab
+  loop: '{{ hostvars[inventory_hostname].disks }}'
+  when: not item.encrypted
+  mount:
+    name: '/mnt/{{ item.name }}'
+    src: '{{ pool_mount_def }}'
+    fstype: '{{ item.fs_type }}'
+    opts: defaults,noatime,nofail
+    state: present

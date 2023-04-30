@@ -1,0 +1,50 @@
+- name: Checking if host has any encrypted disks
+  set_fact:
+    has_encrypted_disks: "{{ hostvars[inventory_hostname].disks | selectattr('encrypted', 'equalto', true) | list | count > 0 }}"
+
+- name: Ensure cryptsetup is installed
+  when: has_encrypted_disks
+  package:
+    name: cryptsetup
+    state: present
+
+- name: Configure encrypted disks in crypttab
+  loop: '{{ hostvars[inventory_hostname].disks }}'
+  when: item.encrypted
+  community.general.crypttab:
+    name: '{{ item.name }}-crypt'
+    backing_device: '{{ item.device }}'
+    password: '/opt/storage/key'
+    state: present
+
+- name: Configure encrypted disks in fstab
+  loop: '{{ hostvars[inventory_hostname].disks }}'
+  when: item.encrypted
+  mount:
+    name: '/mnt/{{ item.name }}'
+    src: '/dev/mapper/{{ item.name }}-crypt'
+    fstype: '{{ item.fs_type }}'
+    opts: defaults,noatime,nofail,x-systemd.before=mnt-pool.mount
+    state: present
+
+- name: Ensure /opt/storage is present
+  when: has_encrypted_disks
+  file:
+    path: /opt/storage
+    state: directory
+    mode: 0644
+
+- name: Ensure encryption key is present
+  when: has_encrypted_disks
+  copy:
+    src: luks-keyfile.vault.bin
+    dest: /opt/storage/key
+    mode: 0600
+    owner: 0
+    group: 0
+
+- name: Delete encryption key if unnecessary
+  when: not has_encrypted_disks
+  file:
+    path: /opt/storage/key
+    state: absent

@@ -1,0 +1,14 @@
+- name: Set up encrypted disk mounts
+  import_tasks: cryptdisks.yml
+
+- name: Set up unencrypted disk mounts
+  import_tasks: disks.yml
+
+- name: Set up mergerfs mount
+  import_tasks: mergerfs.yml
+
+- name: Set up SnapRAID
+  import_tasks: snapraid.yml
+
+- name: Set up Samba
+  import_tasks: samba.yml

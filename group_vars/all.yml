@@ -1,0 +1,12 @@
+base_packages_apt:
+  - nano
+  - git
+  - neofetch
+  - htop
+  - curl
+  - wget
+  - unzip
+  - zip
+  - zsh
+  - toilet
+  - figlet

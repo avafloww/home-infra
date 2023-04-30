@@ -1,0 +1,34 @@
+- name: Checking if host has any pooled disks
+  set_fact:
+    has_pooled_disks: "{{ hostvars[inventory_hostname].disks | selectattr('pooled', 'equalto', true) | list | count > 0 }}"
+
+- name: Collecting list of pooled disks
+  set_fact:
+    pool_mount_def: "{{ pool_mount_def | default([]) + ['/mnt/' + item.name] }}"
+  loop: '{{ hostvars[inventory_hostname].disks }}'
+  when: item.pooled
+
+- name: Creating pool mount defintion
+  set_fact:
+    pool_mount_def: "{{ pool_mount_def | join(':') }}"
+
+- name: Ensure mergerfs is installed
+  when: has_pooled_disks
+  package:
+    name: mergerfs
+    state: present
+
+- name: Configure mergerfs pool in fstab
+  when: has_pooled_disks
+  mount:
+    name: '{{ nas_pool_mount }}'
+    src: '{{ pool_mount_def }}'
+    fstype: 'fuse.mergerfs'
+    opts: 'allow_other,use_ino'
+    state: present
+
+- name: Remove mergerfs pool if no pooled disks
+  when: not has_pooled_disks
+  mount:
+    name: '{{ nas_pool_mount }}'
+    state: absent

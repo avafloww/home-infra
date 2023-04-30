@@ -1,0 +1,5 @@
+- name: Install base packages on Debian
+  when: ansible_os_family == 'Debian'
+  package:
+    name: '{{ base_packages_apt }}'
+    state: present

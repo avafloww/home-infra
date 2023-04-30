@@ -1,0 +1,45 @@
+---
+all:
+  children:
+    hypervisor:
+      hosts:
+        krile:
+    nas:
+      hosts:
+        krile:
+          disks:
+            # Parity disks
+            - name: parity01
+              device: /dev/disk/by-id/ata-WDC_WD120EDAZ-11F3RA0_5PJH7D5F-part1
+              encrypted: true
+              pooled: false
+              fs_type: ext4
+            # Data disks
+            - name: disk01
+              device: /dev/disk/by-id/ata-WDC_WD120EDAZ-11F3RA0_5PJKM7UD-part1
+              encrypted: true
+              pooled: true
+              fs_type: xfs
+            - name: disk02
+              device: /dev/disk/by-id/ata-WDC_WD80EZAZ-11TDBA0_7HK35ARN-part1
+              encrypted: true
+              pooled: true
+              fs_type: xfs
+            - name: disk03
+              device: /dev/disk/by-id/ata-WDC_WD80EFAX-68LHPN0_7SGME4GC-part1
+              encrypted: true
+              pooled: true
+              fs_type: xfs
+            - name: disk04
+              device: /dev/disk/by-id/ata-WDC_WD40EFRX-68N32N0_WD-WCC7K7TKRX73-part1
+              encrypted: true
+              pooled: true
+              fs_type: xfs
+            # Separate disk for CCTV footage
+            - name: cctv
+              device: /dev/disk/by-id/ata-WDC_WD20EZRX-22D8PB0_WD-WCC4M2YYYY5Y-part1
+              encrypted: true
+              pooled: false
+              fs_type: xfs
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
