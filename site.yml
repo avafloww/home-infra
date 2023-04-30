@@ -5,3 +5,8 @@
 - hosts: nas
   roles:
     - nas
+
+- hosts: hypervisor
+  roles:
+    - hypervisor
+    - cockpit

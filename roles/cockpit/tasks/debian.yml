@@ -1,0 +1,20 @@
+- name: Determine target release name
+  set_fact:
+    target_release: "{{ (ansible_distribution_release == 'bookworm') | ternary(ansible_distribution_release, ansible_distribution_release + '-backports') }}"
+
+- name: Install Cockpit
+  apt:
+    name: cockpit
+    state: present
+    default_release: '{{ target_release }}'
+  notify:
+    - Restart cockpit
+
+- name: Install cockpit-machines on hypervisors
+  apt:
+    name: cockpit-machines
+    state: present
+    default_release: '{{ target_release }}'
+  when: "'hypervisor' in role_names"
+  notify:
+    - Restart cockpit

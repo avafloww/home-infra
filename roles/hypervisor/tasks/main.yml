@@ -1,0 +1,20 @@
+- name: Install libvirt and qemu (Debian)
+  apt:
+    name:
+      - libvirt-daemon-system
+      - qemu-system
+    install_recommends: false
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure libvirtd is enabled
+  service:
+    name: libvirtd
+    state: started
+    enabled: yes
+
+- name: Ensure user is in the libvirt group
+  user:
+    name: '{{ ansible_user }}'
+    groups: libvirt
+    append: yes

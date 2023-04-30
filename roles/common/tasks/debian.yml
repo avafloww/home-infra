@@ -1,0 +1,12 @@
+- name: Ensure backports repo is enabled
+  apt_repository:
+    repo: 'deb {{ debian_mirror }} {{ ansible_distribution_release }}-backports main'
+    state: present
+    update_cache: yes
+  # bookworm is current testing, so backports is not yet available
+  when: ansible_distribution_release != 'bookworm'
+
+- name: Install base packages
+  package:
+    name: '{{ base_packages_apt }}'
+    state: present
