@@ -4,9 +4,11 @@
 
 - hosts: nas
   roles:
+    - common
     - nas
 
 - hosts: hypervisor
   roles:
+    - common
     - hypervisor
     - cockpit

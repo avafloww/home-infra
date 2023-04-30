@@ -1,0 +1,12 @@
+- name: update-initramfs
+  command: update-initramfs -u
+  when: ansible_os_family == 'Debian'
+  notify: reboot
+
+- name: update-grub
+  command: update-grub
+  when: ansible_os_family == 'Debian'
+  notify: reboot
+
+- name: reboot
+  reboot:

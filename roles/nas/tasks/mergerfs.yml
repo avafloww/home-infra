@@ -8,10 +8,6 @@
   loop: '{{ hostvars[inventory_hostname].disks }}'
   when: item.pooled
 
-- name: Creating pool mount defintion
-  set_fact:
-    pool_mount_def: "{{ pool_mount_def | join(':') }}"
-
 - name: Ensure mergerfs is installed
   when: has_pooled_disks
   package:
@@ -22,7 +18,7 @@
   when: has_pooled_disks
   mount:
     name: '{{ nas_pool_mount }}'
-    src: '{{ pool_mount_def }}'
+    src: "{{ pool_mount_def | join(':') }}"
     fstype: 'fuse.mergerfs'
     opts: 'allow_other,use_ino'
     state: present

@@ -4,6 +4,9 @@ all:
     hypervisor:
       hosts:
         krile:
+          pci_passthrough_ids:
+            - '10de:2204' # NVIDIA Corporation GA102 [GeForce RTX 3090]
+            - '10de:1aef' # NVIDIA Corporation GA102 High Definition Audio Controller
     nas:
       hosts:
         krile:
