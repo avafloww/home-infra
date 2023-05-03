@@ -1,8 +1,11 @@
-- name: Install libvirt and qemu (Debian)
+- name: Install libvirt and related packages (Debian)
   apt:
     name:
       - libvirt-daemon-system
       - qemu-system
+      - ovmf
+      - swtpm
+      - swtpm-tools
     install_recommends: false
     state: present
   when: ansible_os_family == 'Debian'
@@ -10,8 +13,14 @@
 - name: Ensure libvirtd is enabled
   service:
     name: libvirtd
-    state: started
     enabled: yes
+  notify: restart-libvirtd
+
+- name: Configure libvirt qemu.conf
+  copy:
+    src: qemu.conf
+    dest: /etc/libvirt/qemu.conf
+  notify: restart-libvirtd
 
 - name: Ensure user is in the libvirt group
   user:
@@ -21,3 +30,13 @@
 
 - import_tasks: vfio.yml
   when: pci_passthrough_ids is defined and pci_passthrough_ids | length > 0
+
+- import_tasks: usb-hotplug.yml
+  when: usb_passthrough_ports is defined and usb_passthrough_ports | length > 0
+
+- import_tasks: networking.yml
+  when: ansible_os_family == 'Debian' and network_interfaces is defined and network_interfaces | length > 0
+
+- fail:
+    msg: 'network_interfaces is only supported on Debian'
+  when: ansible_os_family != 'Debian' and network_interfaces is defined and network_interfaces | length > 0

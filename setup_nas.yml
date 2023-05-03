@@ -1,0 +1,5 @@
+- name: Setup NAS
+  hosts: nas
+  roles:
+    - common
+    - nas

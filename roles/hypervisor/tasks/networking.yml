@@ -1,0 +1,24 @@
+- name: Ensure networking packages are installed
+  apt:
+    name:
+      - ifupdown2
+      - bridge-utils
+      - vlan
+    state: present
+
+- name: Enable vlan support
+  lineinfile:
+    path: /etc/iproute2/rt_tables
+    line: '500 firsttable'
+    backup: true
+    state: present
+
+- name: Set up /etc/network/interfaces
+  template:
+    src: net-interfaces.j2
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: 0644
+    backup: true
+  notify: reboot

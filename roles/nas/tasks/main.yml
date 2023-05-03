@@ -1,3 +1,8 @@
+- name: Install smartmontools
+  package:
+    name: smartmontools
+    state: present
+
 - name: Set up encrypted disk mounts
   import_tasks: cryptdisks.yml
 

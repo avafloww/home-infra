@@ -1,0 +1,6 @@
+virtual_machines:
+  workstation:
+    socket: '{{ hotplugger.socket }}'
+    delay: {{ hotplugger.delay }}
+    hubs: {{ hotplugger.hubs | to_json }}
+    ports: {{ usb_passthrough_ports | to_json }}

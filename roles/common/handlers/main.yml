@@ -8,5 +8,12 @@
   when: ansible_os_family == 'Debian'
   notify: reboot
 
+- name: reload-udev-rules
+  command: udevadm control --reload-rules
+  notify: reload-udev
+
+- name: reload-udev
+  command: udevadm trigger
+
 - name: reboot
   reboot:

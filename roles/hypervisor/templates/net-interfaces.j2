@@ -1,0 +1,29 @@
+# Managed by ansible - do not edit manually
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+{% for interface in network_interfaces %}
+auto {{ interface.name }}
+iface {{ interface.name }} inet {{ interface.addressing_mode }}
+{% if interface.bridge_ports is defined %}
+    bridge-ports {{ interface.bridge_ports | join(' ') }}
+    bridge-stp off
+    bridge-fd 0
+{% endif %}
+{% if interface.addressing_mode == 'static' %}
+    address {{ interface.address }}
+    netmask {{ interface.netmask }}
+{% endif %}
+{% if interface.gateway is defined %}
+    gateway {{ interface.gateway }}
+{% endif %}
+{% if interface.dns_servers is defined %}
+    dns-nameservers {{ interface.dns_servers }}
+{% endif %}
+{% if interface.dns_search is defined %}
+    dns-search {{ interface.dns_search }}
+{% endif %}
+
+{% endfor %}
