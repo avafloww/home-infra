@@ -1,5 +1,6 @@
 debian_mirror: http://mirror.it.ubc.ca/debian/
 base_packages_apt:
+  - sudo
   - nano
   - git
   - neofetch

@@ -1,0 +1,2 @@
+# allow libvirt to re-execute its hook as root
+libvirt-qemu    ALL=(ALL:ALL) NOPASSWD: /etc/libvirt/hooks/qemu

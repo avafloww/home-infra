@@ -13,9 +13,11 @@ resource "libvirt_volume" "workstation-w11" {
 
 resource "libvirt_domain" "workstation-w11" {
   name = "workstation-w11"
-  memory = 32768
+  memory = 65536 # 64GB
 
-  vcpu = 16
+  # modify this in workstation.xsl instead
+  # we use a dummy value here to centralise the definition and pinning
+  vcpu = 1
   cpu {
     mode = "host-passthrough"
   }
@@ -24,21 +26,13 @@ resource "libvirt_domain" "workstation-w11" {
   autostart = false
 
   boot_device {
-    dev = ["cdrom", "hd"]
+    dev = ["hd"]
   }
 
   firmware = "/usr/share/OVMF/OVMF_CODE_4M.ms.fd"
   nvram {
     file = "/var/lib/libvirt/qemu/nvram/workstation-w11_VARS.fd"
     template = "/usr/share/OVMF/OVMF_VARS_4M.ms.fd"
-  }
-
-  disk {
-    file = "/mnt/pool/Library/Software/Operating Systems/Releases/Windows/Client/11/Win11_22H2_EnglishInternational_x64v1.iso"
-  }
-
-  disk {
-    url = "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.229-1/virtio-win-0.1.229.iso"
   }
 
   disk {

@@ -1,0 +1,34 @@
+- name: Clone vfio-isolate
+  git:
+    repo: 'https://github.com/spheenik/vfio-isolate.git'
+    dest: '{{ vfio_isolate.dir }}'
+    force: true
+
+- name: Install vfio-isolate in virtualenv
+  pip:
+    virtualenv: '{{ vfio_isolate.dir }}/venv'
+    virtualenv_command: '{{ ansible_python_interpreter }} -m venv'
+    name: '{{ vfio_isolate.dir }}'
+
+- name: Symlink vfio-isolate
+  file:
+    src: '{{ vfio_isolate.dir }}/venv/bin/vfio-isolate'
+    dest: '/usr/local/bin/vfio-isolate'
+    state: link
+    force: true
+
+- name: Setup libvirt hook
+  copy:
+    src: libvirt-hook.sh
+    dest: '/etc/libvirt/hooks/qemu'
+    owner: root
+    group: libvirt-qemu
+    mode: 0750
+
+- name: Allow libvirt user to execute vfio-isolate as root
+  copy:
+    src: vfio-isolate-sudoers
+    dest: '/etc/sudoers.d/vfio-isolate'
+    owner: root
+    group: root
+    mode: 0440

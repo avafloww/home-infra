@@ -6,3 +6,6 @@ hotplugger:
     - usb.0
     - usb1.0
   log_file: /tmp/hotplugger.log
+
+vfio_isolate:
+  dir: /opt/vfio-isolate

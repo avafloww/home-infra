@@ -12,3 +12,5 @@
     src: vfio-grub.cfg
     dest: /etc/default/grub.d/vfio.cfg
   notify: update-grub
+
+- import_tasks: vfio-isolate.yml

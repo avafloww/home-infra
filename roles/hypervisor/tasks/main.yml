@@ -6,6 +6,7 @@
       - ovmf
       - swtpm
       - swtpm-tools
+      - linux-cpupower
     install_recommends: false
     state: present
   when: ansible_os_family == 'Debian'
