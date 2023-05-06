@@ -1,0 +1,9 @@
+- name: Generate managed VM configs
+  template:
+    src: '{{ vm.type }}.xsl.j2'
+    dest: 'terraform/xslt/generated/{{ vm.name }}.xsl'
+  loop: '{{ managed_vms }}'
+  loop_control:
+    loop_var: vm
+  become: false
+  delegate_to: localhost

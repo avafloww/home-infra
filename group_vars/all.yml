@@ -14,3 +14,53 @@ base_packages_apt:
   - figlet
   - python3-venv
   - socat
+
+# The types of VM configs.
+# These should match the name of template files in roles/vm-configs/templates.
+managed_vm_types:
+  - workstation
+
+# PCI passthrough devices on krile.
+# TODO: this smells a bit - this should probably go in host_vars/krile.yml
+managed_vm_pci_devices:
+  gpu1-rtx3090:
+    description: 'bus 0x65 = RTX 3090 in first slot'
+    devices:
+      - bus: '0x65'
+        slot: '0x00'
+        function: '0x0'
+      - bus: '0x65'
+        slot: '0x00'
+        function: '0x1'
+  gpu2-rtx3090:
+    description: 'bus 0x17 = RTX 3090 in second slot'
+    devices:
+      - bus: '0x17'
+        slot: '0x00'
+        function: '0x0'
+      - bus: '0x17'
+        slot: '0x00'
+        function: '0x1'
+
+# Most VM settings should be managed via the Terraform config, not here.
+# "type" should match one of the types in managed_vm_types, in group_vars/all.yml.
+managed_vms:
+  - name: workstation-w11
+    type: workstation
+    is_windows: true
+    cpus: 16
+    mem_gb: 64
+    disk_gb: 500
+    net_vlan: 10
+    pci_devices:
+      - gpu1-rtx3090
+  - name: workstation-linux
+    type: workstation
+    is_windows: false
+    cpus: 16
+    mem_gb: 128
+    disk_gb: 500
+    net_vlan: 10
+    pci_devices:
+      - gpu1-rtx3090
+      - gpu2-rtx3090

@@ -8,5 +8,5 @@ terraform {
 }
 
 provider "libvirt" {
-  uri = "qemu+ssh://krile/system"
+  uri = "qemu+ssh://${var.libvirt_host}/system"
 }

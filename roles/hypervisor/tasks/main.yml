@@ -38,6 +38,10 @@
 - import_tasks: networking.yml
   when: ansible_os_family == 'Debian' and network_interfaces is defined and network_interfaces | length > 0
 
-- fail:
+- name: fail when attempting to define network_interfaces on unsupported OSes
+  fail:
     msg: 'network_interfaces is only supported on Debian'
   when: ansible_os_family != 'Debian' and network_interfaces is defined and network_interfaces | length > 0
+
+- import_tasks: managed-vms.yml
+  when: inventory_hostname == 'krile'

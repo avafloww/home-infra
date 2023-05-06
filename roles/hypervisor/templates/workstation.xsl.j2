@@ -1,3 +1,18 @@
+<!--
+                    _ _     _
+    /\             (_) |   | |
+   /  \   _ __  ___ _| |__ | | ___
+  / /\ \ | '_ \/ __| | '_ \| |/ _ \
+ / ____ \| | | \__ \ | |_) | |  __/
+/_/    \_\_| |_|___/_|_.__/|_|\___|
+
+This file is managed by Ansible. Do not edit directly.
+
+To edit:
+  1. Edit the template at roles/hypervisor/templates/workstation.xsl.j2
+  2. Run `./run.sh setup_hypervisor.yml` to regenerate this file
+  3. Run `./run.sh terraform_apply.yml` to apply changes with Terraform
+-->
 <xsl:stylesheet version="1.0"
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
       xmlns:qemu="http://libvirt.org/schemas/domain/qemu/1.0">
@@ -12,12 +27,18 @@
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
 
+{% if vm.is_windows -%}
       <!-- use local time for Windows -->
       <clock offset="localtime">
+{% else -%}
+      <clock offset="utc">
+{% endif %}
         <timer name="rtc" tickpolicy="catchup" />
         <timer name="pit" tickpolicy="delay" />
         <timer name="hpet" present="no" />
+{% if vm.is_windows -%}
         <timer name="hypervclock" present="yes" />
+{% endif %}
       </clock>
 
       <pm>
@@ -34,27 +55,18 @@
       </qemu:commandline>
 
       <!-- we define this here to centralize CPU config -->
-      <vcpu placement="static">16</vcpu>
+      <vcpu placement="static">{{ vm.cpus }}</vcpu>
 
       <!-- CPU pinning -->
       <cputune>
-        <vcpupin vcpu="0" cpuset="14" />
-        <vcpupin vcpu="1" cpuset="36" />
-        <vcpupin vcpu="2" cpuset="15" />
-        <vcpupin vcpu="3" cpuset="37" />
-        <vcpupin vcpu="4" cpuset="16" />
-        <vcpupin vcpu="5" cpuset="38" />
-        <vcpupin vcpu="6" cpuset="17" />
-        <vcpupin vcpu="7" cpuset="39" />
-        <vcpupin vcpu="8" cpuset="18" />
-        <vcpupin vcpu="9" cpuset="40" />
-        <vcpupin vcpu="10" cpuset="19" />
-        <vcpupin vcpu="11" cpuset="41" />
-        <vcpupin vcpu="12" cpuset="20" />
-        <vcpupin vcpu="13" cpuset="42" />
-        <vcpupin vcpu="14" cpuset="21" />
-        <vcpupin vcpu="15" cpuset="43" />
-        <emulatorpin cpuset="14,36" />
+{% set target_cores = (vm.cpus / 2) | int %}
+{% set cpu_offset_0 = (ansible_processor_vcpus / ansible_processor_threads_per_core) | int - target_cores %}
+{% set cpu_offset_1 = ansible_processor_vcpus - target_cores %}
+{% for i in range(0, target_cores) %}
+        <vcpupin vcpu="{{ (i * 2) }}" cpuset="{{ cpu_offset_0 + i }}" />
+        <vcpupin vcpu="{{ (i * 2) + 1 }}" cpuset="{{ cpu_offset_1 + i }}" />
+{% endfor %}
+        <emulatorpin cpuset="{{ cpu_offset_0 }},{{ cpu_offset_1 }}" />
       </cputune>
     </xsl:copy>
   </xsl:template>
@@ -64,8 +76,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
 
-      <!-- update this if ever changing vcpus value -->
-      <topology sockets="1" cores="8" threads="2" />
+      <topology sockets="1" cores="{{ target_cores }}" threads="2" />
     </xsl:copy>
   </xsl:template>
 
@@ -74,6 +85,7 @@
     <xsl:attribute name="bus">sata</xsl:attribute>
   </xsl:template>
 
+{% if vm.is_windows %}
   <!-- enable secure boot -->
   <xsl:template match="/domain/os/loader/@secure">
     <xsl:attribute name="secure">yes</xsl:attribute>
@@ -96,6 +108,7 @@
       <smm state="on" />
     </xsl:copy>
   </xsl:template>
+{% endif %}
 
   <!-- Remove devices -->
   <xsl:template match="/domain/devices/video" />
@@ -108,29 +121,30 @@
   <xsl:template match="/domain/devices">
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
-
+{% if vm.is_windows -%}
       <!-- emulate TPM 2.0 for Windows 11 -->
       <tpm model="tpm-tis">
         <backend type="emulator" version="2.0" />
       </tpm>
+{% endif %}
 
       <!-- be explicit about USB controllers -->
       <controller type="usb" model="nec-xhci" ports="15" /> <!-- usb.0 -->
       <controller type="usb" model="nec-xhci" ports="15" /> <!-- usb1.0 -->
 
-      <!-- bus 0x65 = RTX 3090 in first slot -->
-      <!-- bus 0x17 = RTX 3090 in second slot -->
+{% for pci in vm.pci_devices %}
+  {% set pci_type = managed_vm_pci_devices[pci] %}
+  {% if 'description' in pci_type and pci_type.description %}
+      <!-- {{ pci_type.description }} -->
+  {% endif %}
+  {% for device in pci_type.devices %}
       <hostdev mode="subsystem" type="pci">
         <source>
-          <address domain="0x0000" bus="0x65" slot="0x00" function="0x0" />
+          <address domain="0x0000" bus="{{ device.bus }}" slot="{{ device.slot }}" function="{{ device.function }}" />
         </source>
       </hostdev>
-
-      <hostdev mode="subsystem" type="pci">
-        <source>
-          <address domain="0x0000" bus="0x65" slot="0x00" function="0x1" />
-        </source>
-      </hostdev>
+  {% endfor %}
+{% endfor %}
     </xsl:copy>
   </xsl:template>
 
