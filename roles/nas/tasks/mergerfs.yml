@@ -1,11 +1,11 @@
 - name: Checking if host has any pooled disks
   set_fact:
-    has_pooled_disks: "{{ hostvars[inventory_hostname].disks | selectattr('pooled', 'equalto', true) | list | count > 0 }}"
+    has_pooled_disks: "{{ disks | selectattr('pooled', 'equalto', true) | list | count > 0 }}"
 
 - name: Collecting list of pooled disks
   set_fact:
     pool_mount_def: "{{ pool_mount_def | default([]) + ['/mnt/' + item.name] }}"
-  loop: '{{ hostvars[inventory_hostname].disks }}'
+  loop: '{{ disks }}'
   when: item.pooled
 
 - name: Ensure mergerfs is installed

@@ -1,6 +1,6 @@
 - name: Checking if host has any encrypted disks
   set_fact:
-    has_encrypted_disks: "{{ hostvars[inventory_hostname].disks | selectattr('encrypted', 'equalto', true) | list | count > 0 }}"
+    has_encrypted_disks: "{{ disks | selectattr('encrypted', 'equalto', true) | list | count > 0 }}"
 
 - name: Ensure cryptsetup is installed
   when: has_encrypted_disks
@@ -9,7 +9,7 @@
     state: present
 
 - name: Configure encrypted disks in crypttab
-  loop: '{{ hostvars[inventory_hostname].disks }}'
+  loop: '{{ disks }}'
   when: item.encrypted
   community.general.crypttab:
     name: '{{ item.name }}-crypt'
@@ -18,7 +18,7 @@
     state: present
 
 - name: Configure encrypted disks in fstab
-  loop: '{{ hostvars[inventory_hostname].disks }}'
+  loop: '{{ disks }}'
   when: item.encrypted
   mount:
     name: '/mnt/{{ item.name }}'

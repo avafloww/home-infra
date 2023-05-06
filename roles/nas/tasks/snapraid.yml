@@ -1,6 +1,6 @@
 - name: Checking if host has any parity disks
   set_fact:
-    has_parity_disks: "{{ hostvars[inventory_hostname].disks | selectattr('name', 'search', '^parity') | list | count > 0 }}"
+    has_parity_disks: "{{ disks | selectattr('name', 'search', '^parity') | list | count > 0 }}"
 
 - name: Ensure snapraid is installed
   when: has_parity_disks
