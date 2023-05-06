@@ -24,7 +24,7 @@ resource "libvirt_domain" "managed_vm" {
 
   machine = "q35"
   autostart = false
-  running = false # contains(var.running_vms, each.value.name)
+  running = contains(var.running_vms, each.value.name)
 
   boot_device {
     dev = ["hd"]
@@ -50,7 +50,7 @@ resource "libvirt_domain" "managed_vm" {
   }
 }
 
-# sleep 5 seconds between each VM to allow QEMU to properly shut down and release PCI devices
+# sleep a bit between each VM to allow QEMU to properly shut down and release PCI devices
 # this is needed because the libvirt provider starts the domain at creation to initialize values
 resource "null_resource" "sleep" {
   for_each = {
@@ -58,10 +58,15 @@ resource "null_resource" "sleep" {
   }
 
   triggers = {
-    name = each.value.name
+    name = each.value.name,
+    xslt = file("${path.module}/xslt/generated/${each.value.name}.xsl")
   }
 
+  depends_on = [
+    libvirt_domain.managed_vm
+  ]
+
   provisioner "local-exec" {
-    command = "sleep 5"
+    command = "sleep 10"
   }
 }

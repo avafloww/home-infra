@@ -5,6 +5,7 @@
   tasks:
     - name: Gather list of running libvirt domains
       command: virsh list --name --state-running
+      become: true
       register: running_vms
       check_mode: false
 
