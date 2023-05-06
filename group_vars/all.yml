@@ -15,6 +15,7 @@ base_packages_apt:
   - python3-venv
   - socat
   - screen
+  - rsync
 
 # The types of VM configs.
 # These should match the name of template files in roles/vm-configs/templates.
