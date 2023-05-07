@@ -6,6 +6,7 @@ variable "libvirt_host" {
 variable "managed_vms" {
   description = "Managed VM descriptors"
   type = map(object({
+    autostart = bool
     is_windows = bool
     cpus = number
     mem_gb = number

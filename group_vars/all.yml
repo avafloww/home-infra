@@ -56,9 +56,10 @@ managed_vm_pci_devices:
 managed_vms:
   workstation-w11:
     type: workstation
+    autostart: true
     is_windows: true
-    cpus: 16
-    mem_gb: 64
+    cpus: 24
+    mem_gb: 128
     disk_gb: 500
     net_vlan: 10
     pci_devices:
@@ -66,8 +67,9 @@ managed_vms:
       - usb-controller
   # workstation-linux:
   #   type: workstation
+  #   autostart: false
   #   is_windows: false
-  #   cpus: 16
+  #   cpus: 24
   #   mem_gb: 128
   #   disk_gb: 500
   #   net_vlan: 10

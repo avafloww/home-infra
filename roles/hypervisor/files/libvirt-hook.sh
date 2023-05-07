@@ -15,9 +15,10 @@ VM=$1
 
 kmsg "executing for vm $VM, state $2"
 
+# todo: fix this to be more dynamic
 ALL_CPUS=0-43
-HOST_CPUS=0-13,22-35
-GUEST_CPUS=14-21,36-43
+HOST_CPUS=0-9,22-31
+GUEST_CPUS=10-21,32-43
 
 UNDOFILE=/var/run/libvirt/qemu/vfio-isolate-undo.$VM.bin
 

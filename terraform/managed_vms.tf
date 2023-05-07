@@ -19,7 +19,7 @@ resource "libvirt_domain" "managed_vm" {
   }
 
   machine = "q35"
-  autostart = false
+  autostart = each.value.autostart
   running = false
 
   boot_device {
