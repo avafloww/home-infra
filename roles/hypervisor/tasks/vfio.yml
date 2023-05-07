@@ -13,4 +13,12 @@
     dest: /etc/default/grub.d/vfio.cfg
   notify: update-grub
 
+- name: sysctl kernel.sched_rt_runtime_us=-1
+  sysctl:
+    name: kernel.sched_rt_runtime_us
+    value: -1
+    state: present
+    sysctl_set: yes
+    reload: yes
+
 - import_tasks: vfio-isolate.yml

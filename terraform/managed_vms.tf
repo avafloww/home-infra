@@ -1,20 +1,3 @@
-# sleep a bit between each VM to allow QEMU to properly shut down and release PCI devices
-# this is needed because the libvirt provider starts the domain at creation to initialize values
-resource "null_resource" "sleep" {
-  for_each = libvirt_domain.managed_vm
-
-  triggers = {
-    id = each.value.id
-    name = each.key
-    config = jsonencode(var.managed_vms[each.key])
-    xslt = file("${path.module}/xslt/generated/${each.key}.xsl")
-  }
-
-  provisioner "local-exec" {
-    command = "sleep 5"
-  }
-}
-
 resource "libvirt_volume" "managed_disk" {
   for_each = var.managed_vms
 

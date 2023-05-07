@@ -38,6 +38,7 @@ To edit:
         <timer name="rtc" tickpolicy="catchup" />
         <timer name="pit" tickpolicy="delay" />
         <timer name="hpet" present="no" />
+        <timer name="tsc" present="yes" mode="native" />
 {% if vm.is_windows -%}
         <timer name="hypervclock" present="yes" />
 {% endif %}
@@ -51,6 +52,19 @@ To edit:
       <!-- we define this here to centralize CPU config -->
       <vcpu placement="static">{{ vm.cpus }}</vcpu>
 
+      <!-- define iothreads -->
+      <iothreads>2</iothreads>
+      <iothreadids>
+        <iothread id="1" />
+        <iothread id="2" />
+      </iothreadids>
+
+      <!-- never allow this VM's memory to be swapped out of physical RAM -->
+      <memoryBacking>
+        <nosharepages />
+        <locked />
+      </memoryBacking>
+
       <!-- CPU pinning -->
       <cputune>
 {% set target_cores = (vm.cpus / 2) | int %}
@@ -59,8 +73,15 @@ To edit:
 {% for i in range(0, target_cores) %}
         <vcpupin vcpu="{{ (i * 2) }}" cpuset="{{ cpu_offset_0 + i }}" />
         <vcpupin vcpu="{{ (i * 2) + 1 }}" cpuset="{{ cpu_offset_1 + i }}" />
+        <vcpusched vcpus="{{ (i * 2) }}" scheduler="fifo" priority="1" />
+        <vcpusched vcpus="{{ (i * 2) + 1 }}" scheduler="fifo" priority="1" />
 {% endfor %}
-        <emulatorpin cpuset="{{ cpu_offset_0 }},{{ cpu_offset_1 }}" />
+        <emulatorpin cpuset="{{ cpu_offset_0 - 1 }},{{ cpu_offset_1 - 1 }}" />
+        <emulatorsched scheduler="fifo" priority="1" />
+        <iothreadpin iothread="1" cpuset="{{ cpu_offset_0 - 2 }}" />
+        <iothreadpin iothread="2" cpuset="{{ cpu_offset_1 - 2 }}" />
+        <iothreadsched iothreads="1" scheduler="rr" priority="1" />
+        <iothreadsched iothreads="2" scheduler="rr" priority="1" />
       </cputune>
     </xsl:copy>
   </xsl:template>
@@ -68,6 +89,8 @@ To edit:
   <!-- assign correct CPU topology -->
   <xsl:template match="/domain/cpu">
     <xsl:copy>
+      <xsl:attribute name="migratable">off</xsl:attribute>
+
       <xsl:apply-templates select="@*|node()" />
 
       <topology sockets="1" cores="{{ target_cores }}" threads="2" />
@@ -89,7 +112,7 @@ To edit:
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
 
-      <hyperv mode="custom">
+      <hyperv mode="passthrough">
         <relaxed state="on" />
         <vapic state="on" />
         <spinlocks state="on" retries="8191" />

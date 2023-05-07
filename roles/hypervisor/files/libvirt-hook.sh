@@ -26,7 +26,7 @@ disable_isolation () {
 		restore $UNDOFILE
 
 	taskset -pc $ALL_CPUS 2  # kthreadd reset
-    kmsg "disabled isolation"
+	kmsg "disabled isolation"
 }
 
 enable_isolation () {
@@ -40,7 +40,7 @@ enable_isolation () {
 		irq-affinity mask C$GUEST_CPUS
 
 	taskset -pc $HOST_CPUS 2  # kthreadd only on host cores
-    kmsg "enabled isolation"
+	kmsg "enabled isolation"
 }
 
 case "$2" in

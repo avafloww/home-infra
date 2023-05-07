@@ -64,17 +64,17 @@ managed_vms:
     pci_devices:
       - gpu1-rtx3090
       - usb-controller
-  workstation-linux:
-    type: workstation
-    is_windows: false
-    cpus: 16
-    mem_gb: 128
-    disk_gb: 500
-    net_vlan: 10
-    pci_devices:
-      - gpu1-rtx3090
-      - gpu2-rtx3090
-      - usb-controller
+  # workstation-linux:
+  #   type: workstation
+  #   is_windows: false
+  #   cpus: 16
+  #   mem_gb: 128
+  #   disk_gb: 500
+  #   net_vlan: 10
+  #   pci_devices:
+  #     - gpu1-rtx3090
+  #     - gpu2-rtx3090
+  #     - usb-controller
 
 # variables with names in this list are exposed to Terraform
 terraform_vars:

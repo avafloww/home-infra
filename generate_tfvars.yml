@@ -1,4 +1,4 @@
-- name: Plan Terraform infrastructure
+- name: Generate Terraform variables file
   hosts: localhost
   become: false
   tasks:
@@ -12,3 +12,10 @@
         content: '{{ tfvars | to_nice_json }}'
         dest: terraform/terraform.tfvars.json
         mode: 0600
+
+- name: Generate managed VM configurations
+  hosts: hypervisor
+  tasks:
+    - import_role:
+        name: hypervisor
+        tasks_from: managed-vms
