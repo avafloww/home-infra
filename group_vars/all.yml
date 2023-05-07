@@ -43,6 +43,13 @@ managed_vm_pci_devices:
       - bus: '0x17'
         slot: '0x00'
         function: '0x1'
+  usb-controller:
+    description: 'bus 0xb6 = USB controller in top 8x slot'
+    devices:
+      - bus: '0xb6'
+        slot: '0x00'
+        function: '0x0'
+        managed: true
 
 # Most VM settings should be managed via the Terraform config, not here.
 # "type" should match one of the types in managed_vm_types, in group_vars/all.yml.
@@ -56,6 +63,7 @@ managed_vms:
     net_vlan: 10
     pci_devices:
       - gpu1-rtx3090
+      - usb-controller
   workstation-linux:
     type: workstation
     is_windows: false
@@ -66,6 +74,7 @@ managed_vms:
     pci_devices:
       - gpu1-rtx3090
       - gpu2-rtx3090
+      - usb-controller
 
 # variables with names in this list are exposed to Terraform
 terraform_vars:

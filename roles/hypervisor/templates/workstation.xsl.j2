@@ -131,7 +131,11 @@ To edit:
       <!-- {{ pci_type.description }} -->
   {% endif %}
   {% for device in pci_type.devices %}
+    {% if 'managed' in device and device.managed %}
+      <hostdev mode="subsystem" type="pci" managed="yes">
+    {% else %}
       <hostdev mode="subsystem" type="pci">
+    {% endif %}
         <source>
           <address domain="0x0000" bus="{{ device.bus }}" slot="{{ device.slot }}" function="{{ device.function }}" />
         </source>
