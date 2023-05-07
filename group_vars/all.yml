@@ -47,7 +47,7 @@ managed_vm_pci_devices:
 # Most VM settings should be managed via the Terraform config, not here.
 # "type" should match one of the types in managed_vm_types, in group_vars/all.yml.
 managed_vms:
-  - name: workstation-w11
+  workstation-w11:
     type: workstation
     is_windows: true
     cpus: 16
@@ -56,7 +56,7 @@ managed_vms:
     net_vlan: 10
     pci_devices:
       - gpu1-rtx3090
-  - name: workstation-linux
+  workstation-linux:
     type: workstation
     is_windows: false
     cpus: 16
@@ -66,3 +66,10 @@ managed_vms:
     pci_devices:
       - gpu1-rtx3090
       - gpu2-rtx3090
+
+# variables with names in this list are exposed to Terraform
+terraform_vars:
+  - managed_vms
+  - libvirt_host
+
+libvirt_host: krile # temporary hack (famous last words)

@@ -1,0 +1,14 @@
+- name: Plan Terraform infrastructure
+  hosts: localhost
+  become: false
+  tasks:
+    - name: Collect variables for terraform.tfvars.json
+      set_fact:
+        tfvars: '{{ tfvars | default({}) | combine({item: vars[item]}) }}'
+      loop: '{{ terraform_vars }}'
+
+    - name: Generate terraform.tfvars.json
+      copy:
+        content: '{{ tfvars | to_nice_json }}'
+        dest: terraform/terraform.tfvars.json
+        mode: 0600

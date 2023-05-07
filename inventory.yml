@@ -22,10 +22,6 @@ all:
           pci_passthrough_ids:
             - '10de:2204' # NVIDIA Corporation GA102 [GeForce RTX 3090]
             - '10de:1aef' # NVIDIA Corporation GA102 High Definition Audio Controller
-          usb_passthrough_ports:
-            - '/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1'
-            - '/devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2.1/1-2.1.1'
-            - '/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1.1/1-1.1.1'
     nas:
       hosts:
         krile:

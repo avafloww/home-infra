@@ -1,3 +1,4 @@
+{% set vm = item.value -%}
 <!--
                     _ _     _
     /\             (_) |   | |
@@ -11,7 +12,8 @@ This file is managed by Ansible. Do not edit directly.
 To edit:
   1. Edit the template at roles/hypervisor/templates/workstation.xsl.j2
   2. Run `./run.sh setup_hypervisor.yml` to regenerate this file
-  3. Run `./run.sh terraform_apply.yml` to apply changes with Terraform
+  3. Run `./run.sh generate_tfvars.yml` to regenerate the Terraform variables
+  4. Run `terraform apply` to apply the changes
 -->
 <xsl:stylesheet version="1.0"
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -45,14 +47,6 @@ To edit:
         <suspend-to-mem enabled="no" />
         <suspend-to-disk enabled="no" />
       </pm>
-
-      <qemu:commandline>
-        <!-- extra args for hotplugger -->
-        <qemu:arg value="-chardev" />
-        <qemu:arg value="socket,id=mon1,server=on,wait=off,path=/var/lib/libvirt/qemu/workstation-qmp.sock" />
-        <qemu:arg value="-mon" />
-        <qemu:arg value="chardev=mon1,mode=control,pretty=on" />
-      </qemu:commandline>
 
       <!-- we define this here to centralize CPU config -->
       <vcpu placement="static">{{ vm.cpus }}</vcpu>
@@ -130,7 +124,6 @@ To edit:
 
       <!-- be explicit about USB controllers -->
       <controller type="usb" model="nec-xhci" ports="15" /> <!-- usb.0 -->
-      <controller type="usb" model="nec-xhci" ports="15" /> <!-- usb1.0 -->
 
 {% for pci in vm.pci_devices %}
   {% set pci_type = managed_vm_pci_devices[pci] %}

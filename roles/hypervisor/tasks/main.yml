@@ -32,9 +32,6 @@
 - import_tasks: vfio.yml
   when: pci_passthrough_ids is defined and pci_passthrough_ids | length > 0
 
-- import_tasks: usb-hotplug.yml
-  when: usb_passthrough_ports is defined and usb_passthrough_ports | length > 0
-
 - import_tasks: networking.yml
   when: ansible_os_family == 'Debian' and network_interfaces is defined and network_interfaces | length > 0
 

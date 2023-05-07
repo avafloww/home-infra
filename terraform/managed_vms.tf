@@ -1,20 +1,33 @@
-resource "libvirt_volume" "managed_disk" {
-  for_each = {
-    for vm in var.managed_vms : vm.name => vm
+# sleep a bit between each VM to allow QEMU to properly shut down and release PCI devices
+# this is needed because the libvirt provider starts the domain at creation to initialize values
+resource "null_resource" "sleep" {
+  for_each = libvirt_domain.managed_vm
+
+  triggers = {
+    id = each.value.id
+    name = each.key
+    config = jsonencode(var.managed_vms[each.key])
+    xslt = file("${path.module}/xslt/generated/${each.key}.xsl")
   }
 
-  name = "${each.value.name}.qcow2"
+  provisioner "local-exec" {
+    command = "sleep 5"
+  }
+}
+
+resource "libvirt_volume" "managed_disk" {
+  for_each = var.managed_vms
+
+  name = "${each.key}.qcow2"
   pool = libvirt_pool.default.name
   size = each.value.disk_gb * 1024 * 1024 * 1024 # GB to bytes
   format = "qcow2"
 }
 
 resource "libvirt_domain" "managed_vm" {
-  for_each = {
-    for vm in var.managed_vms : vm.name => vm
-  }
+  for_each = var.managed_vms
 
-  name = each.value.name
+  name = each.key
   memory = each.value.mem_gb * 1024 # GB to MB
 
   vcpu = each.value.cpus
@@ -24,7 +37,7 @@ resource "libvirt_domain" "managed_vm" {
 
   machine = "q35"
   autostart = false
-  running = contains(var.running_vms, each.value.name)
+  running = false
 
   boot_device {
     dev = ["hd"]
@@ -32,7 +45,7 @@ resource "libvirt_domain" "managed_vm" {
 
   firmware = each.value.is_windows ? "/usr/share/OVMF/OVMF_CODE_4M.ms.fd" : "/usr/share/OVMF/OVMF_CODE_4M.fd"
   nvram {
-    file = "/var/lib/libvirt/qemu/nvram/${each.value.name}_VARS.fd"
+    file = "/var/lib/libvirt/qemu/nvram/${each.key}_VARS.fd"
     template = each.value.is_windows ? "/usr/share/OVMF/OVMF_VARS_4M.ms.fd" : "/usr/share/OVMF/OVMF_VARS_4M.fd"
   }
 
@@ -46,27 +59,12 @@ resource "libvirt_domain" "managed_vm" {
   }
 
   xml {
-    xslt = file("${path.module}/xslt/generated/${each.value.name}.xsl")
-  }
-}
-
-# sleep a bit between each VM to allow QEMU to properly shut down and release PCI devices
-# this is needed because the libvirt provider starts the domain at creation to initialize values
-resource "null_resource" "sleep" {
-  for_each = {
-    for vm in var.managed_vms : vm.name => vm
+    xslt = file("${path.module}/xslt/generated/${each.key}.xsl")
   }
 
-  triggers = {
-    name = each.value.name,
-    xslt = file("${path.module}/xslt/generated/${each.value.name}.xsl")
-  }
-
-  depends_on = [
-    libvirt_domain.managed_vm
-  ]
-
-  provisioner "local-exec" {
-    command = "sleep 10"
+  lifecycle {
+    ignore_changes = [
+      disk.0.wwn
+    ]
   }
 }

@@ -1,6 +1,0 @@
-# Allow libvirt/QEMU to access all USB devices
-SUBSYSTEM=="usb", GROUP="kvm"
-
-# Execute hotplugger on USB device add/remove
-SUBSYSTEM=="usb", ACTION=="add", RUN+="/bin/bash -c 'source {{ hotplugger.dir }}/venv/bin/activate && python3 {{ hotplugger.dir }}/hotplugger.py >> {{ hotplugger.log_file }}' 2>&1"
-SUBSYSTEM=="usb", ACTION=="remove", RUN+="/bin/bash -c 'source {{ hotplugger.dir }}/venv/bin/activate && python3 {{ hotplugger.dir }}/hotplugger.py >> {{ hotplugger.log_file }}' 2>&1"
