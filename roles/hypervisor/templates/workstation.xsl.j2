@@ -162,6 +162,9 @@ To edit:
         <source>
           <address domain="0x0000" bus="{{ device.bus }}" slot="{{ device.slot }}" function="{{ device.function }}" />
         </source>
+    {% if 'rom' in device and device.rom %}
+        <rom file="{{ hypervisor_roms_dir }}/{{ device.rom }}" />
+    {% endif %}
       </hostdev>
   {% endfor %}
 {% endfor %}

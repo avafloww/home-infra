@@ -1,3 +1,26 @@
+- name: Create directory for ROM files
+  file:
+    path: '{{ hypervisor_roms_dir }}'
+    state: directory
+    mode: '0755'
+
+- name: Create list of ROM files to copy
+  set_fact:
+    managed_vm_pci_devices_roms: "{{ managed_vm_pci_devices_roms | default([]) + [item.rom] }}"
+  loop: "{{ managed_vm_pci_devices | json_query('*.devices[]') }}"
+  when: item.rom is defined
+
+- name: Remove duplicates from list of ROM files to copy
+  set_fact:
+    managed_vm_pci_devices_roms: "{{ managed_vm_pci_devices_roms | unique }}"
+
+- name: Copy ROM files to hypervisor
+  copy:
+    src: '{{ item }}'
+    dest: '{{ hypervisor_roms_dir }}/'
+    mode: '0644'
+  loop: "{{ managed_vm_pci_devices_roms }}"
+
 - name: Generate managed VM configs
   template:
     src: '{{ item.value.type }}.xsl.j2'

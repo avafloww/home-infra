@@ -1,2 +1,4 @@
 vfio_isolate:
   dir: /opt/vfio-isolate
+
+hypervisor_roms_dir: /opt/hypervisor/roms
