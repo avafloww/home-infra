@@ -67,18 +67,19 @@ managed_vms:
     pci_devices:
       - gpu1-rtx3090
       - usb-controller
-  # workstation-linux:
-  #   type: workstation
-  #   autostart: false
-  #   is_windows: false
-  #   cpus: 24
-  #   mem_gb: 128
-  #   disk_gb: 500
-  #   net_vlan: 10
-  #   pci_devices:
-  #     - gpu1-rtx3090
-  #     - gpu2-rtx3090
-  #     - usb-controller
+  workstation-linux:
+    type: workstation
+    autostart: false
+    is_windows: false
+    iso: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.7.0-amd64-netinst.iso'
+    cpus: 24
+    mem_gb: 128
+    disk_gb: 500
+    net_vlan: 10
+    pci_devices:
+      - gpu1-rtx3090
+      - gpu2-rtx3090
+      - usb-controller
 
 # variables with names in this list are exposed to Terraform
 terraform_vars:
