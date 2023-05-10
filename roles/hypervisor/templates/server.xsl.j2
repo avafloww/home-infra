@@ -10,7 +10,7 @@
 This file is managed by Ansible. Do not edit directly.
 
 To edit:
-  1. Edit the template at roles/hypervisor/templates/workstation.xsl.j2
+  1. Edit the template at roles/hypervisor/templates/server.xsl.j2
   2. Run `./run.sh setup_hypervisor.yml` to regenerate this file
   3. Run `./run.sh generate_tfvars.yml` to regenerate the Terraform variables
   4. Run `terraform apply` to apply the changes
@@ -51,38 +51,6 @@ To edit:
 
       <!-- we define this here to centralize CPU config -->
       <vcpu placement="static">{{ vm.cpus }}</vcpu>
-
-      <!-- define iothreads -->
-      <iothreads>2</iothreads>
-      <iothreadids>
-        <iothread id="1" />
-        <iothread id="2" />
-      </iothreadids>
-
-      <!-- never allow this VM's memory to be swapped out of physical RAM -->
-      <memoryBacking>
-        <nosharepages />
-        <locked />
-      </memoryBacking>
-
-      <!-- CPU pinning -->
-      <cputune>
-{% set target_cores = (vm.cpus / 2) | int %}
-{% set cpu_offset_0 = (ansible_processor_vcpus / ansible_processor_threads_per_core) | int - target_cores %}
-{% set cpu_offset_1 = ansible_processor_vcpus - target_cores %}
-{% for i in range(0, target_cores) %}
-        <vcpupin vcpu="{{ (i * 2) }}" cpuset="{{ cpu_offset_0 + i }}" />
-        <vcpupin vcpu="{{ (i * 2) + 1 }}" cpuset="{{ cpu_offset_1 + i }}" />
-        <vcpusched vcpus="{{ (i * 2) }}" scheduler="fifo" priority="1" />
-        <vcpusched vcpus="{{ (i * 2) + 1 }}" scheduler="fifo" priority="1" />
-{% endfor %}
-        <emulatorpin cpuset="{{ cpu_offset_0 - 1 }},{{ cpu_offset_1 - 1 }}" />
-        <emulatorsched scheduler="fifo" priority="1" />
-        <iothreadpin iothread="1" cpuset="{{ cpu_offset_0 - 2 }}" />
-        <iothreadpin iothread="2" cpuset="{{ cpu_offset_1 - 2 }}" />
-        <iothreadsched iothreads="1" scheduler="rr" priority="1" />
-        <iothreadsched iothreads="2" scheduler="rr" priority="1" />
-      </cputune>
     </xsl:copy>
   </xsl:template>
 
@@ -93,7 +61,7 @@ To edit:
 
       <xsl:apply-templates select="@*|node()" />
 
-      <topology sockets="1" cores="{{ target_cores }}" threads="2" />
+      <topology sockets="1" cores="{{ (vm.cpus / 2) | int }}" threads="2" />
     </xsl:copy>
   </xsl:template>
 
@@ -132,21 +100,11 @@ To edit:
   <xsl:template match="/domain/devices/audio" />
   <xsl:template match="/domain/devices/graphics" />
   <xsl:template match="/domain/devices/input" />
-  <xsl:template match="/domain/devices/controller[@type='usb']" />
 
   <!-- Add devices -->
   <xsl:template match="/domain/devices">
     <xsl:copy>
       <xsl:apply-templates select="@*|node()" />
-{% if vm.is_windows -%}
-      <!-- emulate TPM 2.0 for Windows 11 -->
-      <tpm model="tpm-tis">
-        <backend type="emulator" version="2.0" />
-      </tpm>
-{% endif %}
-
-      <!-- be explicit about USB controllers -->
-      <controller type="usb" model="nec-xhci" ports="15" /> <!-- usb.0 -->
 
 {% for pci in vm.pci_devices %}
   {% set pci_type = managed_vm_pci_devices[pci] %}

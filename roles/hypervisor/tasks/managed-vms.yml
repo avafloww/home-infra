@@ -10,16 +10,28 @@
   loop: "{{ managed_vm_pci_devices | json_query('*.devices[]') }}"
   when: item.rom is defined
 
-- name: Remove duplicates from list of ROM files to copy
-  set_fact:
+- set_fact:
     managed_vm_pci_devices_roms: "{{ managed_vm_pci_devices_roms | unique }}"
 
 - name: Copy ROM files to hypervisor
   copy:
-    src: '{{ item }}'
+    src: 'vbios/{{ item }}'
     dest: '{{ hypervisor_roms_dir }}/'
     mode: '0644'
   loop: "{{ managed_vm_pci_devices_roms }}"
+
+- name: Check for orphaned ROM files
+  find:
+    paths: '{{ hypervisor_roms_dir }}'
+    patterns: '*.rom'
+  register: rom_files
+
+- name: Remove orphaned ROM files
+  file:
+    path: '{{ item.path }}'
+    state: absent
+  loop: "{{ rom_files.files }}"
+  when: item.path | basename not in managed_vm_pci_devices_roms
 
 - name: Generate managed VM configs
   template:

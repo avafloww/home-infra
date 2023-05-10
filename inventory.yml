@@ -19,6 +19,10 @@ all:
               addressing_mode: dhcp
               bridge_ports:
                 - eno1.35
+            - name: vmbr0v90
+              addressing_mode: manual
+              bridge_ports:
+                - eno1.90
           pci_passthrough_ids:
             - '10de:2204' # NVIDIA Corporation GA102 [GeForce RTX 3090]
             - '10de:1aef' # NVIDIA Corporation GA102 High Definition Audio Controller

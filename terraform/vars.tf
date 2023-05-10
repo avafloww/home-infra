@@ -8,7 +8,7 @@ variable "managed_vms" {
   type = map(object({
     autostart = bool
     is_windows = bool
-    iso = optional(string)
+    iso_url = optional(string)
     cpus = number
     mem_gb = number
     disk_gb = number

@@ -21,6 +21,7 @@ base_packages_apt:
 # These should match the name of template files in roles/vm-configs/templates.
 managed_vm_types:
   - workstation
+  - server
 
 # PCI passthrough devices on krile.
 # TODO: this smells a bit - this should probably go in host_vars/krile.yml
@@ -31,7 +32,7 @@ managed_vm_pci_devices:
       - bus: '0x65'
         slot: '0x00'
         function: '0x0'
-        rom: 'Asus.RTX3090.24576.210308_4.rom'
+        rom: 'Asus.RTX3090.24576.201013_2.rom'
       - bus: '0x65'
         slot: '0x00'
         function: '0x1'
@@ -41,7 +42,7 @@ managed_vm_pci_devices:
       - bus: '0x17'
         slot: '0x00'
         function: '0x0'
-        rom: 'Asus.RTX3090.24576.210308_4.rom'
+        rom: 'Asus.RTX3090.24576.210308_1.rom'
       - bus: '0x17'
         slot: '0x00'
         function: '0x1'
@@ -58,7 +59,7 @@ managed_vm_pci_devices:
 managed_vms:
   workstation-w11:
     type: workstation
-    autostart: true
+    autostart: false
     is_windows: true
     cpus: 24
     mem_gb: 128
@@ -70,8 +71,8 @@ managed_vms:
   workstation-linux:
     type: workstation
     autostart: false
+    enable_vnc: true
     is_windows: false
-    iso: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.7.0-amd64-netinst.iso'
     cpus: 24
     mem_gb: 128
     disk_gb: 500
@@ -80,6 +81,18 @@ managed_vms:
       - gpu1-rtx3090
       - gpu2-rtx3090
       - usb-controller
+  server-anima:
+    type: server
+    autostart: true
+    is_windows: false
+    enable_vnc: true
+    cpus: 16
+    mem_gb: 128
+    disk_gb: 500
+    net_vlan: 90
+    pci_devices:
+      - gpu1-rtx3090
+      - gpu2-rtx3090
 
 # variables with names in this list are exposed to Terraform
 terraform_vars:

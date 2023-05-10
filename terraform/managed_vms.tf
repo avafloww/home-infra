@@ -23,7 +23,7 @@ resource "libvirt_domain" "managed_vm" {
   running = false
 
   boot_device {
-    dev = each.value.iso != null ? ["cdrom", "hd"] : ["hd"]
+    dev = each.value.iso_url != null ? ["cdrom", "hd"] : ["hd"]
   }
 
   firmware = each.value.is_windows ? "/usr/share/OVMF/OVMF_CODE_4M.ms.fd" : "/usr/share/OVMF/OVMF_CODE_4M.fd"
@@ -38,7 +38,7 @@ resource "libvirt_domain" "managed_vm" {
   }
 
   dynamic "disk" {
-    for_each = each.value.iso != null ? [each.value.iso] : []
+    for_each = each.value.iso_url != null ? [each.value.iso_url] : []
     content {
       url = disk.value
     }

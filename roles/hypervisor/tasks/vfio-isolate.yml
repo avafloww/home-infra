@@ -3,12 +3,20 @@
     repo: 'https://github.com/spheenik/vfio-isolate.git'
     dest: '{{ vfio_isolate.dir }}'
     force: true
+  register: vfio_isolate_git
+
+- name: Check if vfio-isolate needs to be installed
+  stat:
+    path: '{{ vfio_isolate.dir }}/venv/bin/vfio-isolate'
+  register: vfio_isolate_installed
+  changed_when: vfio_isolate_installed.stat.exists == false or vfio_isolate_git.changed
 
 - name: Install vfio-isolate in virtualenv
   pip:
     virtualenv: '{{ vfio_isolate.dir }}/venv'
     virtualenv_command: '{{ ansible_python_interpreter }} -m venv'
     name: '{{ vfio_isolate.dir }}'
+  when: vfio_isolate_installed.changed
 
 - name: Symlink vfio-isolate
   file:
@@ -16,6 +24,7 @@
     dest: '/usr/local/bin/vfio-isolate'
     state: link
     force: true
+  when: vfio_isolate_installed.changed
 
 - name: Setup libvirt hook
   copy:
