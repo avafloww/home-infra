@@ -12,3 +12,7 @@
       community.general.terraform:
         project_path: "{{ playbook_dir }}/terraform"
         state: present
+      register: tf_run
+    - name: Show Terraform output
+      debug:
+        var: tf_run.stdout

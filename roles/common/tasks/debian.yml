@@ -6,6 +6,10 @@
   # bookworm is current testing, so backports is not yet available
   when: ansible_distribution_release != 'bookworm'
 
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
 - name: Install base packages
   package:
     name: '{{ base_packages_apt }}'
