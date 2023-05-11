@@ -100,3 +100,4 @@ terraform_vars:
   - libvirt_host
 
 libvirt_host: krile # temporary hack (famous last words)
+dotfiles_github_user: avafloww

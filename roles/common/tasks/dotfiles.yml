@@ -1,0 +1,31 @@
+- name: Setup dotfiles
+  become: false
+  block:
+    - name: Set shell to /bin/zsh
+      user:
+        name: '{{ ansible_user }}'
+        shell: /bin/zsh
+      when: ansible_user != 'root'
+
+    - name: Check if chezmoi is installed
+      stat:
+        path: ~/bin/chezmoi
+      register: chezmoi_installed
+      changed_when: chezmoi_installed.stat.exists == false
+
+    - name: Install chezmoi
+      shell: sh -c "$(curl -fsLS get.chezmoi.io)"
+      when: chezmoi_installed.changed
+
+    - name: Setup dotfiles
+      shell: ~/bin/chezmoi init --apply {{ dotfiles_github_user }}
+      when: chezmoi_installed.changed
+
+    - name: Update dotfiles
+      shell: ~/bin/chezmoi update
+      when: not chezmoi_installed.changed
+
+    - name: Execute zsh to finalize dotfiles setup
+      shell: zsh -i -l -c 'exit 0'
+      register: zsh_exec
+      failed_when: zsh_exec.rc != 0
