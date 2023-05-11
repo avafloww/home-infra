@@ -25,3 +25,8 @@
             name: terraform
             state: present
       when: ansible_os_family == 'Debian'
+  - name: Python dependencies
+    pip:
+      name:
+        - jmespath
+      state: present

@@ -1,4 +1,14 @@
 - import_playbook: setup_common.yml
 - import_playbook: setup_nas.yml
 - import_playbook: setup_hypervisor.yml
+- import_playbook: setup_aethernet.yml
 - import_playbook: generate_tfvars.yml
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Apply Terraform infrastructure
+      community.general.terraform:
+        project_path: "{{ playbook_dir }}/terraform"
+        state: present
