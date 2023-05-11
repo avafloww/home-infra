@@ -2,6 +2,5 @@
   hosts: hypervisor
   roles:
     - handlers
-    - common
     - hypervisor
     - cockpit

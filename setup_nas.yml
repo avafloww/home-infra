@@ -2,5 +2,4 @@
   hosts: nas
   roles:
     - handlers
-    - common
     - nas
