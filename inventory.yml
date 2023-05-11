@@ -65,6 +65,8 @@ all:
 
   # Host declarations
   hosts:
+    lux:
+      ansible_host: 10.69.10.99
     anima:
       ansible_host: 10.69.90.101
 

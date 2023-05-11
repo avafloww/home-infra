@@ -1,4 +1,4 @@
 # Ignore all generated XSL files.
-# Regenerate them with the "generate_vm_configs.yml" Ansible playbook.
+# Regenerate them with the "generate_tfvars.yml" Ansible playbook.
 *
 !.gitignore

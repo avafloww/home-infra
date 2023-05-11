@@ -54,6 +54,7 @@ resource "libvirt_domain" "managed_vm" {
 
   lifecycle {
     ignore_changes = [
+      running,
       disk.0.wwn
     ]
   }

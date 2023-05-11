@@ -86,6 +86,7 @@ managed_vms:
     autostart: true
     is_windows: false
     enable_vnc: true
+    cpus: 16
     mem_gb: 128
     disk_gb: 500
     net_vlan: 90

@@ -7,6 +7,7 @@
       - swtpm
       - swtpm-tools
       - linux-cpupower
+      - mkisofs
     install_recommends: false
     state: present
   when: ansible_os_family == 'Debian'
