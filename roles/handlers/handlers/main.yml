@@ -15,5 +15,10 @@
 - name: reload-udev
   command: udevadm trigger
 
+- name: restart-sshd
+  service:
+    name: sshd
+    state: restarted
+
 - name: reboot
   reboot:
