@@ -12,6 +12,7 @@ base_packages_apt:
   - zsh
   - toilet
   - figlet
+  - python3-pip
   - python3-venv
   - socat
   - screen
