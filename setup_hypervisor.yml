@@ -1,6 +1,7 @@
 - name: Setup hypervisors
   hosts: hypervisor
   roles:
+    - handlers
     - common
     - hypervisor
     - cockpit
