@@ -1,0 +1,6 @@
+- name: Set default system umask
+  lineinfile:
+    path: /etc/login.defs
+    regexp: '^UMASK'
+    line: 'UMASK {{ default_umask }}'
+    state: present

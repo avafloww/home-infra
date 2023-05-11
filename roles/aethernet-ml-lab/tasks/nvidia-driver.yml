@@ -1,0 +1,19 @@
+- name: Add Debian contrib/non-free repos
+  apt_repository:
+    repo: 'deb {{ debian_mirror }} {{ ansible_distribution_release }} main contrib non-free'
+    state: present
+  when: ansible_distribution_release < 'bookworm'
+
+- name: Add Debian contrib/non-free/non-free-firmware repos
+  apt_repository:
+    repo: 'deb {{ debian_mirror }} {{ ansible_distribution_release }} main contrib non-free non-free-firmware'
+    state: present
+  when: ansible_distribution_release >= 'bookworm'
+
+- name: Install nvidia drivers
+  apt:
+    name:
+      - nvidia-driver
+      - firmware-misc-nonfree
+    state: present
+  notify: reboot

@@ -1,0 +1,27 @@
+- name: Assert that tailscale_key is defined
+  assert:
+    that:
+      - tailscale_key is defined
+    msg: "tailscale_key is not defined"
+
+- name: Install Tailscale apt key
+  apt_key:
+    url: 'https://pkgs.tailscale.com/stable/debian/{{ ansible_distribution_release }}.noarmor.gpg'
+    state: present
+
+- name: Install Tailscale deb repository
+  apt_repository:
+    repo: 'deb https://pkgs.tailscale.com/stable/debian {{ ansible_distribution_release }} main'
+    state: present
+
+- name: Install Tailscale
+  apt:
+    name: tailscale
+    state: present
+  register: tailscale_install
+
+- name: Enable Tailscale with defined key
+  shell: tailscale up --authkey {{ tailscale_key }}
+  args:
+    creates: /var/lib/tailscale/tailscaled.state
+  when: tailscale_install.changed

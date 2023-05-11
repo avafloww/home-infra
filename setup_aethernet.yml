@@ -1,0 +1,12 @@
+- name: 'Setup Aethernet'
+  hosts: aethernet
+  roles:
+    - common
+    - aethernet
+
+- name: 'Setup Aethernet: ML Lab'
+  hosts: aethernet-ml-lab
+  roles:
+    - common
+    - aethernet
+    - aethernet-ml-lab

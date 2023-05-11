@@ -1,6 +1,14 @@
 ---
 all:
   children:
+    # Aethernet infrastructure
+    aethernet:
+      hosts:
+        anima:
+    aethernet-ml-lab:
+      hosts:
+        anima:
+    # Hypervisors
     hypervisor:
       hosts:
         krile:
@@ -26,6 +34,8 @@ all:
           pci_passthrough_ids:
             - '10de:2204' # NVIDIA Corporation GA102 [GeForce RTX 3090]
             - '10de:1aef' # NVIDIA Corporation GA102 High Definition Audio Controller
+
+    # Home NAS storage
     nas:
       hosts:
         krile:
@@ -52,5 +62,11 @@ all:
               encrypted: true
               pooled: true
               fs_type: xfs
+
+  # Host declarations
+  hosts:
+    anima:
+      ansible_host: 10.69.90.101
+
   vars:
     ansible_python_interpreter: /usr/bin/python3
