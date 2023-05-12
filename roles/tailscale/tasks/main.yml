@@ -20,8 +20,19 @@
     state: present
   register: tailscale_install
 
+- name: Get Tailscale status
+  shell: tailscale status
+  register: tailscale_status
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+  when: not tailscale_install.changed
+
 - name: Enable Tailscale with defined key
   shell: tailscale up --authkey {{ tailscale_key }}
-  args:
-    creates: /var/lib/tailscale/tailscaled.state
-  when: tailscale_install.changed
+  register: tailscale_enable
+  when: tailscale_install.changed or tailscale_status.rc != 0
+
+- debug:
+    msg: "{{ tailscale_enable.stdout_lines + tailscale_enable.stderr_lines }}"
+  when: tailscale_install.changed or tailscale_status.rc != 0

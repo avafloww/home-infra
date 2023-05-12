@@ -3,3 +3,4 @@
   roles:
     - handlers
     - management
+    - tailscale

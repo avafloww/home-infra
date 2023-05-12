@@ -1,2 +1,2 @@
 - import_tasks: nvidia-driver.yml
-- import_tasks: tailscale.yml
+- import_tasks: motd.yml
