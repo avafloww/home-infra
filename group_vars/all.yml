@@ -91,14 +91,15 @@ managed_vms:
     mem_gb: 128
     disk_gb: 500
     net_vlan: 90
-    pci_devices:
-      - gpu1-rtx3090
-      - gpu2-rtx3090
+    # PCI devices for anima are dynamically merged
+    pci_devices: []
 
 # variables with names in this list are exposed to Terraform
 terraform_vars:
   - managed_vms
   - libvirt_host
 
-libvirt_host: krile # temporary hack (famous last words)
+libvirt_host: krile.lan.aethernet.ca # temporary hack (famous last words)
 dotfiles_github_user: avafloww
+
+hypervisor_managed_vms_local_file: /opt/hypervisor/managed-vms.local.json

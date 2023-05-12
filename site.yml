@@ -1,6 +1,7 @@
 - import_playbook: setup_common.yml
 - import_playbook: setup_nas.yml
 - import_playbook: setup_hypervisor.yml
+- import_playbook: setup_management.yml
 - import_playbook: setup_aethernet.yml
 - import_playbook: generate_tfvars.yml
 

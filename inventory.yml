@@ -63,8 +63,15 @@ all:
               pooled: true
               fs_type: xfs
 
+    # Management hosts
+    management:
+      hosts:
+        lux:
+
   # Host declarations
   hosts:
+    krile:
+      ansible_host: 10.69.10.4
     lux:
       ansible_host: 10.69.10.99
     anima:

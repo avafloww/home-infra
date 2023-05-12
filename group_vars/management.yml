@@ -1,0 +1,2 @@
+management_hypervisor_link_dir: /opt/management/hypervisor-link
+management_ansible_dir: /home/{{ ansible_user }}/home-infra

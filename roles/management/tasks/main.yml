@@ -1,0 +1,8 @@
+- name: install required packages
+  apt:
+    name:
+      - acl
+      - xsltproc
+    state: present
+
+- import_tasks: hypervisor-link.yml

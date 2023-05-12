@@ -33,6 +33,38 @@
   loop: "{{ rom_files.files }}"
   when: item.path | basename not in managed_vm_pci_devices_roms
 
+- name: Ensure managed-vms.local.json exists
+  block:
+    - name: Check if managed-vms.local.json exists
+      stat:
+        path: '{{ hypervisor_managed_vms_local_file }}'
+      register: managed_vms_local_file
+    - name: Create managed-vms.local.json
+      copy:
+        content: '{}'
+        dest: '{{ hypervisor_managed_vms_local_file }}'
+        owner: root
+        group: '{{ ansible_user }}'
+        mode: '0664'
+      when: not managed_vms_local_file.stat.exists
+    - name: Ensure permissions on managed-vms.local.json
+      file:
+        path: '{{ hypervisor_managed_vms_local_file }}'
+        owner: root
+        group: '{{ ansible_user }}'
+        mode: '0664'
+      when: managed_vms_local_file.stat.exists
+
+- name: Read managed-vms.local.json
+  block:
+    - slurp:
+        src: '{{ hypervisor_managed_vms_local_file }}'
+      register: managed_vms_local_file_slurped
+    - set_fact:
+        managed_vms_local: "{{ managed_vms_local_file_slurped.content | b64decode | from_json }}"
+    - set_fact:
+        managed_vms: "{{ managed_vms | default({}) | combine(managed_vms_local, recursive=True) }}"
+
 - name: Generate managed VM configs
   template:
     src: '{{ item.value.type }}.xsl.j2'

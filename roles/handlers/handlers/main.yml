@@ -15,6 +15,10 @@
 - name: reload-udev
   command: udevadm trigger
 
+- name: reload-systemd
+  systemd:
+    daemon_reload: yes
+
 - name: restart-sshd
   service:
     name: sshd

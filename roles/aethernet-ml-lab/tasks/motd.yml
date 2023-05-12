@@ -1,0 +1,12 @@
+- name: Get GPU count
+  shell: nvidia-smi -L | wc -l
+  register: gpu_count
+  changed_when: false
+
+- name: Set /etc/motd
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644

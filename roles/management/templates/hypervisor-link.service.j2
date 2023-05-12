@@ -1,0 +1,11 @@
+[Unit]
+Description=hypervisor-link server
+After=network.target
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+Group={{ ansible_user }}
+WorkingDirectory={{ management_hypervisor_link_dir }}
+ExecStart={{ management_hypervisor_link_dir }}/venv/bin/python {{ management_hypervisor_link_dir }}/hypervisor-link.py
+Restart=on-failure

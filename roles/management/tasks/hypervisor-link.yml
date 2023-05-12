@@ -1,0 +1,73 @@
+- name: Ensure hypervisor-link directory exists
+  file:
+    path: '{{ management_hypervisor_link_dir }}'
+    state: directory
+    owner: root
+    group: '{{ ansible_user }}'
+    mode: 0755
+
+- name: Copy hypervisor-link
+  copy:
+    src: hypervisor-link.py
+    dest: '{{ management_hypervisor_link_dir }}/hypervisor-link.py'
+    owner: root
+    group: '{{ ansible_user }}'
+    mode: 0755
+  register: source_file
+
+- name: Copy hypervisor-link service file
+  template:
+    src: hypervisor-link.service.j2
+    dest: /etc/systemd/system/hypervisor-link.service
+    owner: root
+    group: root
+    mode: 0644
+  register: service_file
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: service_file.changed
+
+- name: Install hypervisor-link dependencies
+  pip:
+    virtualenv: '{{ management_hypervisor_link_dir }}/venv'
+    virtualenv_command: '{{ ansible_python_interpreter }} -m venv'
+    name:
+      - 'fastapi'
+      - 'uvicorn[standard]'
+      - 'paramiko'
+
+- name: Ensure hypervisor-link service is enabled
+  service:
+    name: hypervisor-link
+    enabled: yes
+
+- name: Write hypervisor-link config
+  copy:
+    content: '{{ hv_link_config | to_json }}'
+    dest: '{{ management_hypervisor_link_dir }}/config.json'
+    owner: root
+    group: '{{ ansible_user }}'
+    mode: 0644
+  register: config_file
+  vars:
+    hv_link_config:
+      managed_vms_local_file: '{{ hypervisor_managed_vms_local_file }}'
+      # todo - this is a hack, need to make this dynamic
+      valid_hosts:
+        krile: krile.lan.aethernet.ca
+      ssh_user: '{{ ansible_user }}'
+      ansible_dir: '{{ management_ansible_dir }}'
+
+- name: Ensure hypervisor-link service is running
+  service:
+    name: hypervisor-link
+    state: started
+  when: not (source_file.changed or service_file.changed or config_file.changed)
+
+- name: Restart hypervisor-link service
+  service:
+    name: hypervisor-link
+    state: restarted
+  when: source_file.changed or service_file.changed or config_file.changed
