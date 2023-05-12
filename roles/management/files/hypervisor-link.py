@@ -32,35 +32,31 @@ app = FastAPI()
 async def ping():
   return {'ping': 'pong'}
 
-@app.get('/hosts/{host}/managed_vms')
-async def get_host_managed_vms_local(host: str):
-  if host not in valid_hosts:
-    raise HTTPException(status_code=404, detail='invalid host')
+@app.post('/anima/claim/{gpu_count}')
+async def claim_anima(gpu_count: int):
+  ssh_hostname = valid_hosts['krile']
+  pci_devices = []
 
-  stdout, stderr = ssh_exec(valid_hosts[host], f'cat {managed_vms_local_file}')
-  try:
-    managed_vms = json.loads(stdout)
-  except:
-    raise HTTPException(status_code=500, detail=stderr)
+  if gpu_count != 1 and gpu_count != 2:
+    raise HTTPException(status_code=400, detail='invalid gpu_count - must be either 1 or 2')
 
-  return {
-    'host': valid_hosts[host],
-    'managed_vms': managed_vms,
-    'stdout': stdout,
-    'stderr': stderr,
-  }
+  if gpu_count == 2:
+    virsh_list, _ = ssh_exec(ssh_hostname, 'sudo virsh list --name --state-running')
+    virsh_list = virsh_list.split('\n')
+    for vm in virsh_list:
+      if vm.startswith('workstation-'):
+        raise HTTPException(status_code=409, detail=f'cannot claim 2 gpus: pre-empted by {vm}')
+    pci_devices.append('gpu1-rtx3090')
 
-@app.post('/hosts/{host}/managed_vms')
-async def set_host_managed_vms_local(host: str, managed_vms: dict):
-  if host not in valid_hosts:
-    raise HTTPException(status_code=404, detail='invalid host')
+  pci_devices.append('gpu2-rtx3090')
 
-  # reject if the top level has any key other than server-anima
-  if len(managed_vms.keys()) != 1 or 'server-anima' not in managed_vms:
-    raise HTTPException(status_code=400, detail='invalid managed_vms')
+  managed_vms = json.dumps({
+    'server-anima': {
+      'pci_devices': pci_devices
+    }
+  })
 
-  managed_vms = json.dumps(managed_vms)
-  stdout, stderr = ssh_exec(valid_hosts[host], f'echo \'{managed_vms}\' > {managed_vms_local_file}')
+  stdout, stderr = ssh_exec(ssh_hostname, f'echo \'{managed_vms}\' > {managed_vms_local_file}')
 
   print('running ansible to reconfigure')
 
@@ -70,13 +66,26 @@ async def set_host_managed_vms_local(host: str, managed_vms: dict):
               ./run.sh generate_tfvars.yml && \
               cd terraform && \
               terraform apply -auto-approve && \
-              ssh {ssh_user}@{valid_hosts[host]} \'sudo virsh start server-anima\' && \
+              ssh {ssh_user}@{ssh_hostname} \'sudo virsh start server-anima\' && \
               cd {ansible_dir} && \
               ./run.sh update_ml_lab_motd.yml \
             "  & ')
 
   return {
-    'host': valid_hosts[host],
+    'host': ssh_hostname,
+    'status': 'claim in progress',
+    'stdout': stdout,
+    'stderr': stderr
+  }
+
+@app.post('/anima/unclaim')
+async def unclaim_anima():
+  ssh_hostname = valid_hosts['krile']
+  stdout, stderr = ssh_exec(ssh_hostname, f'sudo virsh destroy server-anima')
+
+  return {
+    'host': ssh_hostname,
+    'status': 'success',
     'stdout': stdout,
     'stderr': stderr
   }
