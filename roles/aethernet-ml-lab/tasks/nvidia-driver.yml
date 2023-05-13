@@ -14,6 +14,7 @@
   apt:
     name:
       - nvidia-driver
+      - nvidia-cuda-toolkit
       - firmware-misc-nonfree
     state: present
   notify: reboot

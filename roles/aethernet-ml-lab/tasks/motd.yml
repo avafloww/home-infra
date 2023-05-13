@@ -1,7 +1,11 @@
 - name: Get GPU count
-  shell: nvidia-smi -L | wc -l
-  register: gpu_count
-  changed_when: false
+  block:
+    - shell: nvidia-smi -L | wc -l
+      register: gpu_count
+    - set_fact:
+        gpu_count: '{{ gpu_count.stdout }}'
+
+- debug: var=gpu_count
 
 - name: Set /etc/motd
   template:

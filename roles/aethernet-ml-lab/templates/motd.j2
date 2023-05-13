@@ -12,7 +12,7 @@
 [1;36mWelcome to the Aethernet machine learning laboratory!
 [0;36mYou are logged onto [33m{{ inventory_hostname }}[36m, owned and operated by [33mAvaflow[36m.
 
-{% if gpu_count == 1 %}
+{% if gpu_count | int == 1 %}
 This machine is currently configured with [33mone[32m NVIDIA GeForce RTX 3090 24GB [36mGPU,
  for a total of [1;33m24GB VRAM[0;36m.
 {% else %}
