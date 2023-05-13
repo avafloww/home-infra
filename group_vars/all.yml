@@ -80,7 +80,6 @@ managed_vms:
     net_vlan: 10
     pci_devices:
       - gpu1-rtx3090
-      - gpu2-rtx3090
       - usb-controller
   server-anima:
     type: server
