@@ -72,7 +72,6 @@ managed_vms:
   workstation-linux:
     type: workstation
     autostart: false
-    enable_vnc: true
     is_windows: false
     cpus: 24
     mem_gb: 128

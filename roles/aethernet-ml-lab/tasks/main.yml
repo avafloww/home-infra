@@ -1,2 +1,7 @@
+- name: Install extra packages
+  apt:
+    name: '{{ ml_lab_extra_packages_apt }}'
+    state: present
+
 - import_tasks: nvidia-driver.yml
 - import_tasks: motd.yml
