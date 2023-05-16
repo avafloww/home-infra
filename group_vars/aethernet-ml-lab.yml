@@ -2,3 +2,4 @@ ml_lab_extra_packages_apt:
   - aria2
   - fish
   - tmux
+  - ninja-build
